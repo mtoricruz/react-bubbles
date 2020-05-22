@@ -8,7 +8,6 @@ const initialColor = {
 };
 
 const ColorList = ({ colors, updateColors }) => {
-  console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
   const {push} = useHistory();
@@ -38,13 +37,14 @@ const ColorList = ({ colors, updateColors }) => {
       .then(res => {
         console.log(res.data, '<----save edit function')
         setColorToEdit({
-          ...colorToEdit,
+          ...colors,
           color: res.data,
           code: {
             hex: res.data.code
           }
         })
         setEditing(false)
+        push(`/bubble-page`)
       })
       .catch(err => console.log(err))
   };
@@ -59,7 +59,7 @@ const ColorList = ({ colors, updateColors }) => {
     axiosWithAuth()
       .delete(`/api/colors/${color.id}`)
       .then(res => {
-        push(`bubble-page`)
+        push(`/bubble-page`)
       })
       .catch(err => console.log(err))
   };
