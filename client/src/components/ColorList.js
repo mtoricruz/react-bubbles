@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useHistory } from 'react-router-dom';
+import { axiosWithAuth } from "../utils/axiosWithAuth";
 
 const initialColor = {
   color: "",
@@ -7,9 +8,9 @@ const initialColor = {
 };
 
 const ColorList = ({ colors, updateColors }) => {
-  console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const {push} = useHistory();
 
   const editColor = color => {
     setEditing(true);
@@ -19,13 +20,50 @@ const ColorList = ({ colors, updateColors }) => {
   const saveEdit = e => {
     e.preventDefault();
     // Make a put request to save your updated color
+    axiosWithAuth()
+      .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
     // think about where will you get the id from...
     // where is is saved right now?
+      .then(res => {
+        console.log(res.data, '<----save edit function')
+        axiosWithAuth()
+          .get('/api/colors')
+          .then(res => {
+            // console.log(res, '<----saveedit .get')
+            updateColors(res.data)
+          })
+        setEditing(false)
+      })
+      .catch(err => console.log(err))
   };
+
+// cannot read property hex of undefined
+  // setColorToEdit([
+  //   res.data
+  // ])
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    axiosWithAuth()
+      .delete(`/api/colors/${color.id}`)
+      .then(res => {
+        axiosWithAuth()
+          .get('/api/colors')
+          .then(res =>{
+            updateColors(res.data)
+            })
+      })
+      .catch(err => console.log(err))
   };
+
+  // useEffect(() => {
+  //   axiosWithAuth()
+  //     .get(`/api/colors`)
+  //     .then(res => 
+  //        updateColors(res.data) 
+  //     )
+  //     .catch(err => console.log(err))
+  // }, [])
 
   return (
     <div className="colors-wrap">
