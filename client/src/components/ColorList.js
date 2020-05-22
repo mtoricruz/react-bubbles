@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { axiosWithAuth } from "../utils/axiosWithAuth";
 
 const initialColor = {
@@ -11,16 +11,6 @@ const ColorList = ({ colors, updateColors }) => {
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
   const {push} = useHistory();
-  const {id} = useParams();
-
-  useEffect(() => {
-    axiosWithAuth()
-      .get(`/api/colors`)
-      .then(res => 
-         updateColors(res.data) 
-      )
-      .catch(err => console.log(err))
-  }, [])
 
   const editColor = color => {
     setEditing(true);
@@ -31,7 +21,7 @@ const ColorList = ({ colors, updateColors }) => {
     e.preventDefault();
     // Make a put request to save your updated color
     axiosWithAuth()
-      .put(`/api/colors/${id}`, colorToEdit)
+      .put(`/api/colors/${colors.id}`, colorToEdit)
     // think about where will you get the id from...
     // where is is saved right now?
       .then(res => {
@@ -63,6 +53,15 @@ const ColorList = ({ colors, updateColors }) => {
       })
       .catch(err => console.log(err))
   };
+
+  useEffect(() => {
+    axiosWithAuth()
+      .get(`/api/colors`)
+      .then(res => 
+         updateColors(res.data) 
+      )
+      .catch(err => console.log(err))
+  }, [])
 
   return (
     <div className="colors-wrap">
