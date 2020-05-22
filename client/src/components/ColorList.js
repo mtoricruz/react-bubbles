@@ -21,20 +21,18 @@ const ColorList = ({ colors, updateColors }) => {
     e.preventDefault();
     // Make a put request to save your updated color
     axiosWithAuth()
-      .put(`/api/colors/${colors.id}`, colorToEdit)
+      .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
     // think about where will you get the id from...
     // where is is saved right now?
       .then(res => {
         console.log(res.data, '<----save edit function')
-        setColorToEdit({
-          ...colors,
-          color: res.data,
-          code: {
-            hex: res.data.code
-          }
-        })
+        axiosWithAuth()
+          .get('/api/colors')
+          .then(res => {
+            // console.log(res, '<----saveedit .get')
+            updateColors(res.data)
+          })
         setEditing(false)
-        push(`/bubble-page`)
       })
       .catch(err => console.log(err))
   };
@@ -49,19 +47,23 @@ const ColorList = ({ colors, updateColors }) => {
     axiosWithAuth()
       .delete(`/api/colors/${color.id}`)
       .then(res => {
-        push(`/bubble-page`)
+        axiosWithAuth()
+          .get('/api/colors')
+          .then(res =>{
+            updateColors(res.data)
+            })
       })
       .catch(err => console.log(err))
   };
 
-  useEffect(() => {
-    axiosWithAuth()
-      .get(`/api/colors`)
-      .then(res => 
-         updateColors(res.data) 
-      )
-      .catch(err => console.log(err))
-  }, [])
+  // useEffect(() => {
+  //   axiosWithAuth()
+  //     .get(`/api/colors`)
+  //     .then(res => 
+  //        updateColors(res.data) 
+  //     )
+  //     .catch(err => console.log(err))
+  // }, [])
 
   return (
     <div className="colors-wrap">
