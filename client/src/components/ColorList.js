@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useHistory, useParams } from 'react-router-dom';
+import { axiosWithAuth } from "../utils/axiosWithAuth";
 
 const initialColor = {
   color: "",
@@ -10,6 +11,17 @@ const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const {push} = useHistory();
+  const {id} = useParams();
+
+  useEffect(() => {
+    axiosWithAuth()
+      .get(`/api/colors`)
+      .then(res => 
+         updateColors(res.data) 
+      )
+      .catch(err => console.log(err))
+  }, [])
 
   const editColor = color => {
     setEditing(true);
@@ -19,12 +31,37 @@ const ColorList = ({ colors, updateColors }) => {
   const saveEdit = e => {
     e.preventDefault();
     // Make a put request to save your updated color
+    axiosWithAuth()
+      .put(`/api/colors/${id}`, colorToEdit)
     // think about where will you get the id from...
     // where is is saved right now?
+      .then(res => {
+        console.log(res.data, '<----save edit function')
+        setColorToEdit({
+          ...colorToEdit,
+          color: res.data,
+          code: {
+            hex: res.data.code
+          }
+        })
+        setEditing(false)
+      })
+      .catch(err => console.log(err))
   };
+
+// cannot read property hex of undefined
+  // setColorToEdit([
+  //   res.data
+  // ])
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    axiosWithAuth()
+      .delete(`/api/colors/${color.id}`)
+      .then(res => {
+        push(`bubble-page`)
+      })
+      .catch(err => console.log(err))
   };
 
   return (
